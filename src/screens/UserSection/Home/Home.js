@@ -22,6 +22,8 @@ import {styles} from './HomeStyle';
 import {useSelector} from 'react-redux';
 import CustomLoader from '../../../components/CustomLoader/CustomLoader';
 import MyButton from '../../../components/MyButton/MyButton';
+import MyTextInput from '../../../components/MyTextInput/MyTextInput';
+import {screensEnabled} from 'react-native-screens';
 
 const Home = ({navigation}) => {
   //variables
@@ -29,6 +31,13 @@ const Home = ({navigation}) => {
   //states
   const [showLoader, setShowLoader] = useState(false);
   const [page, setPage] = useState(1);
+  const [enteredTitle, setEnteredTitle] = useState('');
+  const [enteredGenre, setEnteredGenre] = useState('');
+  const [filteredListData, setFilteredListData] = useState(
+    moviesList?.filter(
+      (mov, index) => index >= page * 2 - 2 && index < page * 2,
+    ),
+  );
 
   useEffect(() => {
     getMoviesList();
@@ -55,9 +64,14 @@ const Home = ({navigation}) => {
     setShowLoader(false);
   };
 
+  const gotoDetails = data => {
+    navigation.navigate(ScreenNames.MOVIE_DETAIL, {data});
+  };
   const renderMovie = ({item}) => {
     return (
-      <TouchableOpacity style={styles.movieContainer}>
+      <TouchableOpacity
+        style={styles.movieContainer}
+        onPress={() => gotoDetails(item)}>
         <View style={styles.row}>
           <MyText
             text={'id'}
@@ -114,7 +128,22 @@ const Home = ({navigation}) => {
             fontFamily="bold"
           />
         </View>
+
         <View style={styles.row}>
+          <MyText
+            text={'genre'}
+            textColor={Colors.DARK_GREY}
+            fontSize={18}
+            fontFamily="bold"
+          />
+          <MyText
+            text={item.genre}
+            textColor={Colors.THEME_GOLD}
+            fontSize={18}
+            fontFamily="bold"
+          />
+        </View>
+        {/* <View style={styles.row}>
           <MyText
             text={'runtime'}
             textColor={Colors.DARK_GREY}
@@ -130,27 +159,13 @@ const Home = ({navigation}) => {
         </View>
         <View style={styles.row}>
           <MyText
-            text={'genre'}
-            textColor={Colors.DARK_GREY}
-            fontSize={18}
-            fontFamily="bold"
-          />
-          <MyText
-            text={item.genre}
-            textColor={Colors.THEME_GOLD}
-            fontSize={18}
-            fontFamily="bold"
-          />
-        </View>
-        <View style={styles.row}>
-          <MyText
             text={'movie_poster'}
             textColor={Colors.DARK_GREY}
             fontSize={18}
             fontFamily="bold"
           />
           <Image source={{uri: item.movie_poster}} style={styles.movieImg} />
-        </View>
+        </View> */}
       </TouchableOpacity>
     );
   };
@@ -178,23 +193,52 @@ const Home = ({navigation}) => {
       </View>
     );
   };
-
+  const filterList = t => {
+    const pageList = moviesList?.filter(
+      (mov, index) => index >= page * 2 - 2 && index < page * 2,
+    );
+    const filtered = pageList?.filter(el =>
+      el.movie_title?.toLowerCase()?.includes(t?.toLowerCase()),
+    );
+    setFilteredListData([...filtered]);
+  };
   //UI
   return (
     <View style={styles.container}>
       <MyHeader Title="Home" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <FlatList
-          data={moviesList?.filter(
-            (mov, index) => index >= page * 2 - 2 && index < page * 2,
-          )}
-          keyExtractor={(_, index) => {
-            index.toString();
-          }}
-          style={{alignSelf: 'center'}}
-          renderItem={renderMovie}
-        />
-        <Pagination />
+        <View style={styles.mainView}>
+          <MyTextInput
+            value={enteredTitle}
+            setValue={setEnteredTitle}
+            placeholder={'search by title'}
+            isOnChangeText
+            onChangeText={t => {
+              setEnteredTitle(t);
+              filterList(t);
+            }}
+            style={{width: '47%'}}
+          />
+          <MyTextInput
+            value={enteredGenre}
+            setValue={setEnteredGenre}
+            placeholder={'search by genre'}
+            isOnChangeText
+            onChangeText={t => {
+              setEnteredTitle(t);
+            }}
+            style={{width: '47%'}}
+          />
+          <FlatList
+            data={filteredListData}
+            keyExtractor={(_, index) => {
+              index.toString();
+            }}
+            style={{alignSelf: 'center'}}
+            renderItem={renderMovie}
+          />
+          <Pagination />
+        </View>
       </ScrollView>
       {showLoader ? <CustomLoader /> : null}
     </View>
@@ -216,7 +260,7 @@ const moviesList = [
   },
   {
     id: '2',
-    movie_title: 'abc',
+    movie_title: 'mkj',
     release_date: '25-01-2020',
     brief: 'brief',
     movie_poster: img,
@@ -243,7 +287,7 @@ const moviesList = [
   },
   {
     id: '5',
-    movie_title: 'mkj',
+    movie_title: 'abc',
     release_date: '25-01-2020',
     brief: 'brief',
     movie_poster: img,
