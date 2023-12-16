@@ -6,11 +6,16 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 
 //endpoint : base_url
-export const BASE_URL = `https://api.themoviedb.org/3/`
+export const BASE_URL = `https://api.themoviedb.org/3/`;
 
 export const LOGIN = `authentication`;
-export const MOVIE_LIST = `account/20836968/lists?page=`;
+export const AUTHENTICATE = `authenticate`;
+export const CREATE_SESSION = `authentication/session/new`;
+export const NEW_TOKEN = `authentication/token/new`;
+// export const MOVIE_LIST = `account/20836968/lists?page=`;
+export const MOVIE_LIST = `account/20836968/lists`;
 export const MOVIE_DETAIL = `account/20836968`;
+export const MOVIE_NOW_PLAYING = `movie/now_playing`;
 
 //function : post API
 export const postAPI = async (endPoint, postData, token = '') => {
@@ -76,19 +81,23 @@ export const getApi = endPoint =>
       }
     });
 //function :  get api with token
-export const getApiWithToken = (token, endPoint) =>
-  axios
-    .get(`${BASE_URL}${endPoint}`, {
+export const getApiWithToken = (token, endPoint) => {
+  let url = `${BASE_URL}${endPoint}`
+  url += `?api_key=23046d1140dfb2cdc6477d0eb3576f75`
+  console.log('url', url);
+  return axios
+    .get(url, {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       },
     })
     .then(res => {
       return res;
     })
     .catch(error => {
+      console.log('error', error);
       if (error?.response?.status === 422) {
         // Alert.alert('', `${error.response.data.message}`);
         Toast.show({text1: error.response.data.message});
@@ -117,6 +126,7 @@ export const getApiWithToken = (token, endPoint) =>
         console.log('status', error.response.status);
       }
     });
+};
 //function :  post api
 export const postApi = (endPoint, data) =>
   axios

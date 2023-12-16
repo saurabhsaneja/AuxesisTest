@@ -10,7 +10,7 @@ import Home from 'screens/UserSection/Home/Home';
 const MainStack = () => {
   //variables
   const Stack = createStackNavigator();
-  const initialRouteName = ScreenNames.LOGIN;
+  const initialRouteName = ScreenNames.HOME;
   const screenOptions = {
     headerShown: false,
   };
